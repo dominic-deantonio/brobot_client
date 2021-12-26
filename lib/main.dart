@@ -1,5 +1,6 @@
 import 'package:brobot_client/serviceLocator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'controller.dart';
 
 void main() {
@@ -16,6 +17,7 @@ class MyApp extends StatelessWidget {
       title: 'Brobot',
       home: Home(),
       theme: ThemeData.dark(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -26,6 +28,12 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text('Brobot'),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -37,9 +45,9 @@ class Home extends StatelessWidget {
                   padding: EdgeInsets.all(10),
                   child: ValueListenableBuilder(
                     valueListenable: c.status,
-                    builder: (BuildContext context, Dir value, Widget? child) {
+                    builder: (BuildContext context, String value, Widget? child) {
                       return Text(
-                        value.name,
+                        c.getLabel(value),
                         style: Theme.of(context).textTheme.headline3,
                       );
                     },
@@ -48,7 +56,7 @@ class Home extends StatelessWidget {
               ),
               SizedBox(height: 110),
               DirButton(
-                Dir.Forward,
+                'forward',
                 child: RotatedBox(quarterTurns: 1, child: Icon(Icons.arrow_back_ios_rounded, size: 60, color: Colors.white)),
                 color: Colors.amber,
               ),
@@ -56,23 +64,32 @@ class Home extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   DirButton(
-                    Dir.Left,
+                    'left',
                     child: RotatedBox(quarterTurns: 0, child: Icon(Icons.arrow_back_ios_rounded, size: 60, color: Colors.white)),
                     color: Colors.blue,
                   ),
                   SizedBox(width: 60),
                   DirButton(
-                    Dir.Right,
+                    'right',
                     child: RotatedBox(quarterTurns: 2, child: Icon(Icons.arrow_back_ios_rounded, size: 60, color: Colors.white)),
-                    color: Colors.red,
+                    color: Colors.purple,
                   ),
                 ],
               ),
               DirButton(
-                Dir.Reverse,
+                'backward',
                 child: RotatedBox(quarterTurns: 3, child: Icon(Icons.arrow_back_ios_rounded, size: 60, color: Colors.white)),
                 color: Colors.green,
               ),
+              SizedBox(height: 80),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.red, // background
+                  onPrimary: Colors.white, // foreground
+                ),
+                onPressed: c.goDir,
+                child: Text('Stop'),
+              )
             ],
           ),
         ),
@@ -82,7 +99,7 @@ class Home extends StatelessWidget {
 }
 
 class DirButton extends StatelessWidget {
-  final Dir dir;
+  final String dir;
   final Widget child;
   final Color color;
   final Controller c = getIt<Controller>();
